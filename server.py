@@ -3,7 +3,7 @@ from db.database import engine
 from schema import models
 import uvicorn
 
-from routes import UserRoutes, BankRoutes, BudgetRoutes, TransactionRoutes, RegisteredAccountRoutes
+from routes import UserRoutes, BankRoutes, BudgetRoutes, TransactionRoutes, RegisteredAccountRoutes, LoginRoutes
 
 app = FastAPI(title="PFA - Personal Finance App")
 
@@ -12,6 +12,7 @@ app.include_router(BankRoutes.router)
 app.include_router(BudgetRoutes.router)
 app.include_router(TransactionRoutes.router)
 app.include_router(RegisteredAccountRoutes.router)
+app.include_router(LoginRoutes.router)
 # Create database tables
 models.Base.metadata.create_all(bind=engine)
     
