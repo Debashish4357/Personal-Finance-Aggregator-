@@ -6,27 +6,20 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-# Check for Railway MySQL environment variables first
-MYSQL_HOST = os.getenv("MYSQLHOST")
-MYSQL_PORT = os.getenv("MYSQLPORT", "3306")
-MYSQL_USER = os.getenv("MYSQLUSER") 
-MYSQL_PASSWORD = os.getenv("MYSQLPASSWORD")
-MYSQL_DATABASE = os.getenv("MYSQLDATABASE")
+# Get DATABASE_URL from environment or use the Railway public URL
+DATABASE_URL = os.getenv("DATABASE_URL", "mysql://root:snXHhNeMDFhhHABIuNHPhZPRQDUYhdHA@nozomi.proxy.rlwy.net:49016/railway")
 
-# Build DATABASE_URL from Railway variables if available
-if all([MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DATABASE]):
-    DATABASE_URL = f"mysql+pymysql://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DATABASE}"
-    print("🐬 Using Railway MySQL database")
-else:
-    # Fallback to DATABASE_URL or local development
-    DATABASE_URL = os.getenv("DATABASE_URL", "mysql+pymysql://root:Ravish%4099055.@localhost:3306/pfa-b")
-    print("🐬 Using local MySQL database")
-
-# For any mysql:// URLs, convert to mysql+pymysql://
+# Convert mysql:// to mysql+pymysql:// for SQLAlchemy compatibility
 if DATABASE_URL.startswith("mysql://"):
     DATABASE_URL = DATABASE_URL.replace("mysql://", "mysql+pymysql://", 1)
+    print("🐬 Using Railway MySQL database")
+    # Extract host info for display
+    host_part = DATABASE_URL.split("@")[1].split("/")[0] if "@" in DATABASE_URL else "unknown"
+    print(f"Database connection: {host_part}")
+else:
+    print("🐬 Using custom MySQL database")
 
-print(f"Database connection: {MYSQL_HOST or 'localhost'}:{MYSQL_PORT}")
+print(f"Connection URL: mysql+pymysql://***@{DATABASE_URL.split('@')[1] if '@' in DATABASE_URL else 'localhost'}")
 
 engine = create_engine(DATABASE_URL, echo=True)
 
