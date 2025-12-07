@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transactions - Personal Finance App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .navbar h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: background 0.3s;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .logout-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .section {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .section h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #555;
+            font-weight: 500;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        input:focus, select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .error-message, .success-message {
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .error-message {
+            background-color: #fee;
+            color: #c33;
+            border-left: 4px solid #c33;
+        }
+
+        .success-message {
+            background-color: #efe;
+            color: #3c3;
+            border-left: 4px solid #3c3;
+        }
+
+        .error-message.show, .success-message.show {
+            display: block;
+        }
+
+        .transactions-list {
+            margin-top: 20px;
+        }
+
+        .transaction-item {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+
+        .transaction-info h4 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .transaction-info p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .transaction-amount {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .transaction-amount.credit {
+            color: #28a745;
+        }
+
+        .transaction-amount.debit {
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <h1>💰 Personal Finance App</h1>
+            <div class="nav-links">
+                <a href="Dashboard.html">Dashboard</a>
+                <a href="Transactions.html">Transactions</a>
+                <a href="Budgets.html">Budgets</a>
+                <a href="BankAccounts.html">Bank Accounts</a>
+                <a href="Banks.html">Banks</a>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="error-message" id="errorMessage"></div>
+        <div class="success-message" id="successMessage"></div>
+
+        <div class="section" id="add">
+            <h2>Add Transaction</h2>
+            <form id="transactionForm">
+                <div class="form-group">
+                    <label for="from_account_id">From Account ID</label>
+                    <input type="number" id="from_account_id" name="from_account_id" required>
+                </div>
+                <div class="form-group">
+                    <label for="transaction_type">Transaction Type</label>
+                    <select id="transaction_type" name="transaction_type" required>
+                        <option value="CREDIT">CREDIT</option>
+                        <option value="DEBIT">DEBIT</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="to_account_id">To Account ID (Optional)</label>
+                    <input type="number" id="to_account_id" name="to_account_id">
+                </div>
+                <div class="form-group">
+                    <label for="amount">Amount</label>
+                    <input type="number" id="amount" name="amount" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <select id="category" name="category" required>
+                        <option value="TRAVEL">TRAVEL</option>
+                        <option value="FOOD">FOOD</option>
+                        <option value="HOUSEHOLD">HOUSEHOLD</option>
+                        <option value="HEALTH">HEALTH</option>
+                        <option value="ANONYMOUS">ANONYMOUS</option>
+                        <option value="INCOME">INCOME</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="balance_after_transaction">Balance After Transaction</label>
+                    <input type="number" id="balance_after_transaction" name="balance_after_transaction" step="0.01" required>
+                </div>
+                <button type="submit">Add Transaction</button>
+            </form>
+        </div>
+
+        <div class="section">
+            <h2>View Transactions</h2>
+            <div class="form-group">
+                <label for="account_id_filter">Account ID</label>
+                <input type="number" id="account_id_filter" placeholder="Enter account ID to filter">
+                <button type="button" onclick="loadTransactions()" style="margin-top: 10px;">Load Transactions</button>
+            </div>
+            <div class="transactions-list" id="transactionsList">
+                <p style="color: #666; text-align: center; padding: 20px;">Enter an account ID and click "Load Transactions" to view transactions</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = 'Login.html';
+        }
+
+        document.getElementById('transactionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideMessages();
+
+            const formData = {
+                from_account_id: parseInt(document.getElementById('from_account_id').value),
+                transaction_type: document.getElementById('transaction_type').value,
+                amount: parseFloat(document.getElementById('amount').value),
+                category: document.getElementById('category').value,
+                balance_after_transaction: parseFloat(document.getElementById('balance_after_transaction').value)
+            };
+
+            const toAccountId = document.getElementById('to_account_id').value;
+            if (toAccountId) {
+                formData.to_account_id = parseInt(toAccountId);
+            }
+
+            try {
+                const response = await fetch('http://localhost:8000/transactions/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Failed to add transaction');
+                }
+
+                showSuccess('Transaction added successfully!');
+                document.getElementById('transactionForm').reset();
+            } catch (err) {
+                showError(err.message);
+            }
+        });
+
+        async function loadTransactions() {
+            const accountId = document.getElementById('account_id_filter').value;
+            if (!accountId) {
+                showError('Please enter an account ID');
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:8000/transactions/account/${accountId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to load transactions');
+                }
+
+                const transactions = await response.json();
+                displayTransactions(transactions);
+            } catch (err) {
+                showError(err.message);
+            }
+        }
+
+        function displayTransactions(transactions) {
+            const list = document.getElementById('transactionsList');
+            if (transactions.length === 0) {
+                list.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">No transactions found</p>';
+                return;
+            }
+
+            list.innerHTML = transactions.map(tx => `
+                <div class="transaction-item">
+                    <div class="transaction-info">
+                        <h4>${tx.category} - ${tx.transaction_type}</h4>
+                        <p>Date: ${new Date(tx.transaction_date).toLocaleString()}</p>
+                        <p>Account ID: ${tx.from_account_id}</p>
+                    </div>
+                    <div class="transaction-amount ${tx.transaction_type.toLowerCase()}">
+                        ${tx.transaction_type === 'CREDIT' ? '+' : '-'}₹${tx.amount.toFixed(2)}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            successDiv.textContent = message;
+            successDiv.classList.add('show');
+        }
+
+        function hideMessages() {
+            document.getElementById('errorMessage').classList.remove('show');
+            document.getElementById('successMessage').classList.remove('show');
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            window.location.href = 'Login.html';
+        }
+    </script>
+</body>
+</html>
+

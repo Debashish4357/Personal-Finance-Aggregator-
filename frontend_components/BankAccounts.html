@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bank Accounts - Personal Finance App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .navbar h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: background 0.3s;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .logout-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .section {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .section h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #555;
+            font-weight: 500;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        input:focus, select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .error-message, .success-message {
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .error-message {
+            background-color: #fee;
+            color: #c33;
+            border-left: 4px solid #c33;
+        }
+
+        .success-message {
+            background-color: #efe;
+            color: #3c3;
+            border-left: 4px solid #3c3;
+        }
+
+        .error-message.show, .success-message.show {
+            display: block;
+        }
+
+        .accounts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .account-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .account-card h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .account-card p {
+            color: #666;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .account-balance {
+            font-size: 24px;
+            font-weight: 600;
+            color: #667eea;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <h1>💰 Personal Finance App</h1>
+            <div class="nav-links">
+                <a href="Dashboard.html">Dashboard</a>
+                <a href="Transactions.html">Transactions</a>
+                <a href="Budgets.html">Budgets</a>
+                <a href="BankAccounts.html">Bank Accounts</a>
+                <a href="Banks.html">Banks</a>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="error-message" id="errorMessage"></div>
+        <div class="success-message" id="successMessage"></div>
+
+        <div class="section">
+            <h2>Link Bank Account</h2>
+            <form id="accountForm">
+                <div class="form-group">
+                    <label for="account_number">Account Number</label>
+                    <input type="text" id="account_number" name="account_number" required>
+                </div>
+                <div class="form-group">
+                    <label for="ifsc_code">IFSC Code</label>
+                    <input type="text" id="ifsc_code" name="ifsc_code" required>
+                </div>
+                <div class="form-group">
+                    <label for="phone_no">Phone Number</label>
+                    <input type="text" id="phone_no" name="phone_no" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="bank_id">Bank ID</label>
+                    <input type="number" id="bank_id" name="bank_id" required>
+                </div>
+                <div class="form-group">
+                    <label for="account_balance">Initial Balance (₹)</label>
+                    <input type="number" id="account_balance" name="account_balance" step="0.01" value="0.00">
+                </div>
+                <button type="submit">Link Account</button>
+            </form>
+        </div>
+
+        <div class="section">
+            <h2>Your Bank Accounts</h2>
+            <button type="button" onclick="loadAccounts()" style="margin-bottom: 20px;">Refresh Accounts</button>
+            <div class="accounts-grid" id="accountsGrid">
+                <p style="color: #666; text-align: center; padding: 20px; grid-column: 1/-1;">Click "Refresh Accounts" to load your bank accounts</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = 'Login.html';
+        }
+
+        document.getElementById('accountForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideMessages();
+
+            const formData = {
+                account_number: document.getElementById('account_number').value,
+                ifsc_code: document.getElementById('ifsc_code').value,
+                phone_no: document.getElementById('phone_no').value,
+                email: document.getElementById('email').value,
+                bank_id: parseInt(document.getElementById('bank_id').value),
+                account_balance: parseFloat(document.getElementById('account_balance').value) || 0.0
+            };
+
+            try {
+                const response = await fetch('http://localhost:8000/registered-accounts/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Failed to link account');
+                }
+
+                showSuccess('Bank account linked successfully!');
+                document.getElementById('accountForm').reset();
+                loadAccounts();
+            } catch (err) {
+                showError(err.message);
+            }
+        });
+
+        async function loadAccounts() {
+            try {
+                const response = await fetch('http://localhost:8000/registered-accounts/', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to load accounts');
+                }
+
+                const accounts = await response.json();
+                displayAccounts(accounts);
+            } catch (err) {
+                showError(err.message);
+            }
+        }
+
+        function displayAccounts(accounts) {
+            const grid = document.getElementById('accountsGrid');
+            if (accounts.length === 0) {
+                grid.innerHTML = '<p style="color: #666; text-align: center; padding: 20px; grid-column: 1/-1;">No bank accounts found. Link an account to get started.</p>';
+                return;
+            }
+
+            grid.innerHTML = accounts.map(account => `
+                <div class="account-card">
+                    <h3>Account #${account.account_number}</h3>
+                    <p><strong>IFSC:</strong> ${account.ifsc_code}</p>
+                    <p><strong>Email:</strong> ${account.email}</p>
+                    <p><strong>Phone:</strong> ${account.phone_no}</p>
+                    <p><strong>Bank ID:</strong> ${account.bank_id}</p>
+                    <div class="account-balance">₹${account.account_balance.toFixed(2)}</div>
+                </div>
+            `).join('');
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            successDiv.textContent = message;
+            successDiv.classList.add('show');
+        }
+
+        function hideMessages() {
+            document.getElementById('errorMessage').classList.remove('show');
+            document.getElementById('successMessage').classList.remove('show');
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            window.location.href = 'Login.html';
+        }
+
+        // Load accounts on page load
+        loadAccounts();
+    </script>
+</body>
+</html>
+
