@@ -6,28 +6,27 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-# Get database URL from environment variable or use local MySQL as fallback
-DATABASE_URL = os.getenv("DATABASE_URL")
+# Check for Railway MySQL environment variables first
+MYSQL_HOST = os.getenv("MYSQLHOST")
+MYSQL_PORT = os.getenv("MYSQLPORT", "3306")
+MYSQL_USER = os.getenv("MYSQLUSER") 
+MYSQL_PASSWORD = os.getenv("MYSQLPASSWORD")
+MYSQL_DATABASE = os.getenv("MYSQLDATABASE")
 
-# If DATABASE_URL is not set, check for Railway MySQL variables
-if not DATABASE_URL:
-    MYSQL_HOST = os.getenv("MYSQLHOST")
-    MYSQL_PORT = os.getenv("MYSQLPORT", "3306")
-    MYSQL_USER = os.getenv("MYSQLUSER") 
-    MYSQL_PASSWORD = os.getenv("MYSQLPASSWORD")
-    MYSQL_DATABASE = os.getenv("MYSQLDATABASE")
-    
-    if all([MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DATABASE]):
-        DATABASE_URL = f"mysql+pymysql://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DATABASE}"
-    else:
-        # Fallback to local development
-        DATABASE_URL = "mysql+pymysql://root:Ravish%4099055.@localhost:3306/pfa-b"
+# Build DATABASE_URL from Railway variables if available
+if all([MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DATABASE]):
+    DATABASE_URL = f"mysql+pymysql://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DATABASE}"
+    print("🐬 Using Railway MySQL database")
+else:
+    # Fallback to DATABASE_URL or local development
+    DATABASE_URL = os.getenv("DATABASE_URL", "mysql+pymysql://root:Ravish%4099055.@localhost:3306/pfa-b")
+    print("🐬 Using local MySQL database")
 
-# For Railway MySQL deployment, ensure proper format
+# For any mysql:// URLs, convert to mysql+pymysql://
 if DATABASE_URL.startswith("mysql://"):
     DATABASE_URL = DATABASE_URL.replace("mysql://", "mysql+pymysql://", 1)
 
-print(f"Using database: {DATABASE_URL.split('@')[0].split('://')[0]}://...@{DATABASE_URL.split('@')[1] if '@' in DATABASE_URL else 'localhost'}")
+print(f"Database connection: {MYSQL_HOST or 'localhost'}:{MYSQL_PORT}")
 
 engine = create_engine(DATABASE_URL, echo=True)
 
