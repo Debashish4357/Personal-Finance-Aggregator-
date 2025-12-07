@@ -27,6 +27,10 @@ class BudgetResponse(BaseModel):
     class Config:
         from_attributes = True
 
+class OverallBalanceLimitUpdate(BaseModel):
+    user_id: int
+    overall_balance_limit: float
+
 
 @router.post("/", response_model=BudgetResponse, status_code=status.HTTP_201_CREATED)
 def set_budget(budget: BudgetCreate, db: Session = Depends(get_db)):
@@ -47,3 +51,35 @@ def reset_budget(budget_id: int, db: Session = Depends(get_db)):
         raise HTTPException(404, "Budget not found")
     db.commit()
     return {"message": "Budget reset successfully", "budget": budget}
+
+
+@router.post("/overall-balance-limit")
+def set_overall_balance_limit(limit_data: OverallBalanceLimitUpdate, db: Session = Depends(get_db)):
+    from controller.userController import get_user_by_id, update_user
+    user = get_user_by_id(db, limit_data.user_id)
+    if not user:
+        raise HTTPException(404, "User not found")
+    
+    user = update_user(db, limit_data.user_id, {"overall_balance_limit": limit_data.overall_balance_limit})
+    db.commit()
+    return {"message": "Overall balance limit set successfully", "user_id": user.id, "overall_balance_limit": user.overall_balance_limit}
+
+
+@router.get("/overall-balance-limit/{user_id}")
+def get_overall_balance_limit(user_id: int, db: Session = Depends(get_db)):
+    from controller.userController import get_user_by_id
+    user = get_user_by_id(db, user_id)
+    if not user:
+        raise HTTPException(404, "User not found")
+    return {"user_id": user.id, "overall_balance_limit": user.overall_balance_limit}
+
+
+@router.post("/trigger-sync")
+def trigger_manual_sync(db: Session = Depends(get_db)):
+    """Manually trigger sync workflow"""
+    from services.sync_service import full_sync_workflow
+    try:
+        full_sync_workflow()
+        return {"message": "Sync completed successfully"}
+    except Exception as e:
+        raise HTTPException(500, f"Sync failed: {str(e)}")

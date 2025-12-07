@@ -29,6 +29,10 @@ def get_user_by_email(db: Session, email: str) -> Optional[User]:
     return db.query(User).filter(User.email == email).first()
 
 
+def get_user_by_phone(db: Session, phone_no: str) -> Optional[User]:
+    return db.query(User).filter(User.phone_no == phone_no).first()
+
+
 def update_user(db: Session, user_id: int, update_data: Dict[str, Any]) -> Optional[User]:
     user = db.query(User).filter(User.id == user_id).first()
     if not user:

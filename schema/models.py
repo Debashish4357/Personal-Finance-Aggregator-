@@ -35,11 +35,13 @@ class User(Base):
     email = Column(String(255), unique=True, nullable=False, index=True)
     password = Column(String(255), nullable=False)
     phone_no = Column(String(15), unique=True, nullable=False)
+    overall_balance_limit = Column(Float, nullable=True)  # Overall balance limit across all accounts
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
     budgets = relationship("Budget", back_populates="user", cascade="all, delete-orphan")
+    alerts = relationship("Alert", back_populates="user", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<User(id={self.id}, email={self.email}, name={self.name})>"
@@ -162,6 +164,35 @@ class Budget(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     user = relationship("User", back_populates="budgets")
+    alerts = relationship("Alert", back_populates="budget", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<Budget(id={self.id}, category={self.category.value}, limit={self.monthly_limit})>"
+
+
+# ==========================
+# ALERT
+# ==========================
+
+class AlertType(enum.Enum):
+    BUDGET_80_PERCENT = "BUDGET_80_PERCENT"
+    BUDGET_100_PERCENT = "BUDGET_100_PERCENT"
+    OVERALL_BALANCE_LIMIT = "OVERALL_BALANCE_LIMIT"
+
+class Alert(Base):
+    __tablename__ = "alerts"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    budget_id = Column(Integer, ForeignKey("budgets.id", ondelete="CASCADE"), nullable=True)
+    alert_type = Column(Enum(AlertType), nullable=False)
+    message = Column(String(500), nullable=False)
+    is_read = Column(Integer, default=0, nullable=False)  # 0 = unread, 1 = read
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    # Relationships
+    user = relationship("User", back_populates="alerts")
+    budget = relationship("Budget", back_populates="alerts")
+
+    def __repr__(self):
+        return f"<Alert(id={self.id}, type={self.alert_type.value}, user_id={self.user_id})>"
