@@ -55,7 +55,7 @@ def read_root():
 
 if __name__ == "__main__":
     # Get port from environment variable (Railway provides this)
-    port = int(os.getenv("PORT", 8000))
+    port = 8000
     host = os.getenv("HOST", "0.0.0.0")
     
     uvicorn.run(
@@ -64,3 +64,4 @@ if __name__ == "__main__":
         port=port,
         reload=True if os.getenv("RAILWAY_ENVIRONMENT") != "production" else False
     )
+
