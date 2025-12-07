@@ -54,9 +54,13 @@ def read_root():
 
 
 if __name__ == "__main__":
-    # Get port from environment variable (Railway provides this)
+    # Always use port 8000
     port = 8000
-    host = os.getenv("HOST", "0.0.0.0")
+    host = "0.0.0.0"
+    
+    print(f"🚀 Starting Personal Finance Aggregator...")
+    print(f"📡 Uvicorn is running on port {port}")
+    print(f"🌐 Access your API at: http://{host}:{port}")
     
     uvicorn.run(
         "server:app",
@@ -64,4 +68,3 @@ if __name__ == "__main__":
         port=port,
         reload=True if os.getenv("RAILWAY_ENVIRONMENT") != "production" else False
     )
-
