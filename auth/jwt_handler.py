@@ -1,10 +1,15 @@
 # auth/jwt_handler.py
 import time
 import jwt
+import os
 from typing import Dict
+from dotenv import load_dotenv
 
-JWT_SECRET = "please_please_update_me_please"
-JWT_ALGORITHM = "HS256"
+# Load environment variables
+load_dotenv()
+
+JWT_SECRET = os.getenv("JWT_SECRET", "please_please_update_me_please")
+JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
 
 def token_response(token: str):
     return {

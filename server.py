@@ -3,10 +3,15 @@ from fastapi.middleware.cors import CORSMiddleware
 from db.database import engine
 from schema import models
 import uvicorn
+import os
+from dotenv import load_dotenv
 
 from routes import UserRoutes, BankRoutes, BudgetRoutes, TransactionRoutes, RegisteredAccountRoutes, LoginRoutes, AlertRoutes
 from services.scheduler import start_scheduler, stop_scheduler
 import atexit
+
+# Load environment variables
+load_dotenv()
 
 app = FastAPI(title="PFA - Personal Finance App")
 
@@ -49,9 +54,13 @@ def read_root():
 
 
 if __name__ == "__main__":
+    # Get port from environment variable (Railway provides this)
+    port = int(os.getenv("PORT", 8000))
+    host = os.getenv("HOST", "0.0.0.0")
+    
     uvicorn.run(
         "server:app",
-        host="0.0.0.0",
-        port=8000,
-        reload=True
+        host=host,
+        port=port,
+        reload=True if os.getenv("RAILWAY_ENVIRONMENT") != "production" else False
     )
