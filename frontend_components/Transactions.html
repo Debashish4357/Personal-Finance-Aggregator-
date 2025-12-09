@@ -288,7 +288,7 @@
             }
 
             try {
-                const response = await fetch('http://localhost:8000/transactions/', {
+                const response = await fetch('hhttps://personal-finance-aggregator-production.up.railway.app/transactions/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -317,7 +317,7 @@
             }
 
             try {
-                const response = await fetch(`http://localhost:8000/transactions/account/${accountId}`, {
+                const response = await fetch(`https://personal-finance-aggregator-production.up.railway.app/transactions/account/${accountId}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
